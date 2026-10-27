@@ -108,7 +108,8 @@ public class BitbucketMultiCredentialsAuthenticator implements BitbucketAuthenti
 
         // bitbucket cloud rolling windows is 1 hour per 1000 calls
         // https://support.atlassian.com/bitbucket-cloud/kb/bitbucket-cloud-rate-limit-troubleshooting/
-        rateLimitCache.putIfAbsent(current().getId(), now);
+        // keep the first hit time if the credential is already in the window, it is when the window started
+        rateLimitCache.computeIfAbsent(current().getId(), id -> now);
 
         // remove from cache all credentials out from the rolling window
         for (Entry<String, Date> entry : rateLimitCache.entrySet()) {
